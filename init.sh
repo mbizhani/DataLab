@@ -1,9 +1,9 @@
-# DataLab
+#!/bin/bash
 
-TODO: `vol/nifi/conf` must be filled with NiFi conf before starting
+docker-compose down
 
-```sh
-# Call init.sh for following mkdir
+rm -rf vol
+
 mkdir -p vol/nifi/conf \
   vol/nifi/logs \
   vol/nifi/state \
@@ -17,4 +17,3 @@ mkdir -p vol/nifi/conf \
   vol/mysql
 
 docker-compose up -d
-```
