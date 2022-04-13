@@ -18,3 +18,8 @@ mkdir -p vol/nifi/conf \
 
 docker-compose up -d
 ```
+
+Web Apps
+
+- [NiFi](https://localhost:8443/nifi)
+- [UI for Kafka](http://localhost:8080)

@@ -3,6 +3,8 @@ version: '3.6'
 services:
   nifi:
     image: apache/nifi:1.16.0
+    hostname: nifi
+    container_name: nifi
     ports:
       - "8443:8443"
     environment:
