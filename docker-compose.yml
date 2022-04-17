@@ -18,6 +18,7 @@ services:
       - ./vol/nifi/database:/opt/nifi/nifi-current/database_repository
       - ./vol/nifi/flowfile:/opt/nifi/nifi-current/flowfile_repository
       - ./vol/nifi/provenance:/opt/nifi/nifi-current/provenance_repository
+      - ./jdbc:/opt/nifi/jdbc
 
   mysql:
     image: mysql:8.0.28-debian

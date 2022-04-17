@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TestSendToKafka {
-	private static List<String> CARDS = new ArrayList<>();
+	private static final List<String> CARDS = new ArrayList<>();
 
 	public static void main(String[] args) throws Exception {
 		for (int i = 1000; i < 2000; i++) {
@@ -31,7 +31,7 @@ public class TestSendToKafka {
 			from("timer:example?period=5000")
 				.process(exchange -> {
 					final int amount = (int) (Math.random() * 1000 + 1);
-					final String card = CARDS.get((int) (Math.random() * 1000 + 1));
+					final String card = CARDS.get((int) (Math.random() * 1000));
 					exchange
 						.getMessage()
 						.setBody(String.format("{\"card\":\"%s\",\"amount\":%s}", card, amount));
