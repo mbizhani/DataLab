@@ -37,7 +37,7 @@ public class TestSendToKafka {
 						.setBody(String.format("{\"card\":\"%s\",\"amount\":%s}", card, amount));
 				})
 				.to("kafka:camel-topic?brokers=localhost:29092")
-				.to("log:" + TestCamel.HelloWorldRoute.class.getName());
+				.to("log:" + TestSendToKafka.SendKafkaRoute.class.getName());
 		}
 	}
 

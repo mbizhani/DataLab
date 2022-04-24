@@ -1,10 +1,10 @@
-version: '3.6'
+version: "3.8"
 
 services:
   nifi:
     image: apache/nifi:1.16.0
-    hostname: nifi
-    container_name: nifi
+    hostname: dl-nifi
+    container_name: dl-nifi
     ports:
       - "8443:8443"
     environment:
@@ -19,22 +19,93 @@ services:
       - ./vol/nifi/flowfile:/opt/nifi/nifi-current/flowfile_repository
       - ./vol/nifi/provenance:/opt/nifi/nifi-current/provenance_repository
       - ./jdbc:/opt/nifi/jdbc
+    profiles:
+      - nifi
+
+  cubejs:
+    image: cubejs/cube:v0.29.50
+    hostname: dl-cubejs
+    container_name: dl-cubejs
+    ports:
+      - "4000:4000"
+    environment:
+      CUBEJS_DEV_MODE: "true"
+    volumes:
+      - ./vol/cubejs:/cube/conf
+    profiles:
+      - cubejs
+
+  metabase:
+    image: metabase/metabase:v0.42.4
+    hostname: dl-metabase
+    container_name: dl-metabase
+    ports:
+      - "3000:3000"
+    environment:
+      MB_DB_TYPE: postgres
+      MB_DB_HOST: postgres
+      MB_DB_PORT: 5432
+      MB_DB_DBNAME: metabaseappdb
+      MB_DB_USER: postgres
+      MB_DB_PASS: postgres
+    profiles:
+      - metabase
+
+  knowage:
+    image: knowagelabs/knowage-server-docker:8.0.9
+    hostname: dl-knowage
+    container_name: dl-knowage
+    ports:
+      - "8080:8080"
+    environment:
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_DB: db_knowage
+      DB_USER: u_knowage
+      DB_PASS: knowage
+      CACHE_DB_HOST: mysql
+      CACHE_DB_PORT: 3306
+      CACHE_DB_DB: db_knowage
+      CACHE_DB_USER: u_knowage
+      CACHE_DB_PASS: knowage
+      HMAC_KEY: qazwsxedc
+      PASSWORD_ENCRYPTION_SECRET: qazwsxedc
+    profiles:
+      - knowage
+
+  postgres:
+    image: postgres:14.2-bullseye
+    hostname: dl-postgres
+    container_name: dl-postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - ./vol/postgres:/var/lib/postgresql/data
+    profiles:
+      - cubejs
+#      - metabase
 
   mysql:
     image: mysql:8.0.28-debian
-    hostname: mysql
-    container_name: mysql
+    command: --default-authentication-plugin=mysql_native_password
+    hostname: dl-mysql
+    container_name: dl-mysql
     ports:
       - "3306:3306"
     environment:
       MYSQL_ROOT_PASSWORD: root
     volumes:
       - ./vol/mysql:/var/lib/mysql
+    profiles:
+      - nifi
+      - knowage
 
   zookeeper:
     image: confluentinc/cp-zookeeper:7.1.0
-    hostname: zookeeper
-    container_name: zookeeper
+    hostname: dl-zookeeper
+    container_name: dl-zookeeper
     ports:
       - "2181:2181"
     environment:
@@ -43,11 +114,14 @@ services:
     volumes:
       - ./vol/broker/zookeeper/data:/var/lib/zookeeper/data
       - ./vol/broker/zookeeper/log:/var/lib/zookeeper/log
+    profiles:
+      - nifi
+      - kafka
 
   kafka:
     image: confluentinc/cp-kafka:7.1.0
-    hostname: kafka
-    container_name: kafka
+    hostname: dl-kafka
+    container_name: dl-kafka
     depends_on:
       - zookeeper
     ports:
@@ -62,10 +136,13 @@ services:
       KAFKA_INTER_BROKER_LISTENER_NAME: INSIDE
     volumes:
       - ./vol/broker/kafka/data:/var/lib/kafka/data
+    profiles:
+      - nifi
+      - kafka
 
   kafka-ui:
     image: provectuslabs/kafka-ui:0.3.3
-    hostname: kafka-ui
+    hostname: dl-kafka-ui
     container_name: kafka-ui
     ports:
       - "8080:8080"
@@ -76,3 +153,6 @@ services:
       KAFKA_CLUSTERS_0_NAME: local
       KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9092
       KAFKA_CLUSTERS_0_ZOOKEEPER: zookeeper:2181
+    profiles:
+      - nifi
+      - kafka

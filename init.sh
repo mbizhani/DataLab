@@ -1,8 +1,17 @@
 #!/bin/bash
 
-docker-compose down
+if [ "$1" ]; then
+  PROFILE="$1"
+else
+  echo "${0} PROFILE"
+  exit 1
+fi
 
-rm -rf vol
+echo "Docker Compose Profile: $PROFILE"
+
+docker-compose --profile $PROFILE down
+
+sudo rm -rf vol
 
 mkdir -p vol/nifi/conf \
   vol/nifi/logs \
@@ -14,6 +23,8 @@ mkdir -p vol/nifi/conf \
   vol/broker/zookeeper/data \
   vol/broker/zookeeper/log \
   vol/broker/kafka/data \
-  vol/mysql
+  vol/mysql \
+  vol/postgres \
+  vol/cubejs
 
-docker-compose up -d
+docker-compose --profile $PROFILE up -d
